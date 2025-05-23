@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebAR with Model and Click Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+
+    <!-- Register JS for dynamic updates and click interaction -->
+    <script>
+      AFRAME.registerComponent("update-info", {
+        init: function () {
+          const tempText = document.querySelector("#temp");
+          const vibText = document.querySelector("#vib");
+
+          setInterval(() => {
+            const newTemp = (60 + Math.random() * 20).toFixed(1);
+            const newVib = (Math.random() * 0.1).toFixed(3);
+
+            tempText.setAttribute("value", `Temp: ${newTemp}°C`);
+            vibText.setAttribute("value", `Vibration: ${newVib}g`);
+          }, 2000);
+        },
+      });
+
+      AFRAME.registerComponent("toggle-panel", {
+        init: function () {
+          const el = this.el;
+          const panel = document.querySelector("#extra-panel");
+          el.addEventListener("click", function () {
+            const isVisible = panel.getAttribute("visible");
+            panel.setAttribute("visible", !isVisible);
+          });
+        },
+      });
+    </script>
+  </head>
+
+  <body style="margin: 0; overflow: hidden; touch-action: none;">
+    <a-scene 
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false;"
+      update-info
+      vr-mode-ui="enabled: false"
+      renderer="antialias: true; alpha: true">
+      <!-- Marker -->
+      <a-marker preset="hiro">
+
+        <!-- Main group -->
+        <a-entity position="0 0 0">
+
+          <!-- 3D Model (replace 'machine.glb' with your model filename) -->
+          <a-gltf-model 
+          src="bike.glb" 
+          scale="0.5 0.5 0.5" 
+          position="0 0 0"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 8000"
+          >
+        </a-gltf-model>
+
+
+          <!-- Info Panel -->
+          <a-plane color="#000000" width="1.2" height="0.6" position="0 1 0" opacity="0.7"></a-plane>
+
+          <a-text id="temp" value="Temp: 72°C" position="-0.55 1.15 0.01" align="left" color="#FFD700" width="1.5"></a-text>
+          <a-text id="vib" value="Vibration: 0.03g" position="-0.55 0.95 0.01" align="left" color="#00FFFF" width="1.5"></a-text>
+
+          <!-- Extra Info Panel (hidden by default) -->
+          <a-entity id="extra-panel" visible="true">
+            <a-plane color="#111111" width="1.4" height="0.5" position="0 1.6 0" opacity="0.8"></a-plane>
+            <a-text value="Last serviced: 2024-11-02" position="-0.65 1.75 0.01" align="left" width="2" color="#FFFFFF"></a-text>
+            <a-text value="Status: OK" position="-0.65 1.55 0.01" align="left" width="2" color="#00FF00"></a-text>
+          </a-entity>
+
+        </a-entity>
+      </a-marker>
+      <!-- Custom marker (pattern file) -->
+<a-marker type="pattern" url="custom-marker.patt">
+  <a-cylinder color="green" position="0 0.5 0"></a-cylinder>
+</a-marker>
+
+      <!-- AR Camera -->
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+</html>
